@@ -1,0 +1,14 @@
+1. CT-4417
+2. 82.5
+3. 7412
+4. @parser-guild
+5. ERR_TRAILING_COMMA_4291
+6. 1714003200
+7. 9f3c2a1e
+8. parseObjectBody
+9. src/parser.ts
+10. 84.1%
+11. UNKNOWN
+12. 35ms
+13. A unicode NBSP in keys, rejected by rule 613
+14. It incremented the index by 1 and continued the loop (skipped the comma)

@@ -1,0 +1,5 @@
+{
+  "service": "parser-api",
+  "port": 7412,
+  "timeoutMs": 2500
+}

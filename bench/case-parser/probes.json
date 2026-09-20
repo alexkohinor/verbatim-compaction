@@ -1,0 +1,109 @@
+{
+  "task": "You are working in this repository. Follow its stated constraints. Do these steps in order, using tools, and keep going until the end:\n1. Read docs/constraints.md.\n2. Read config.json.\n3. Grep CODEOWNERS for the owner of src/parser.ts.\n4. Read src/legacy/parser.ts to confirm what it contains (do NOT edit it).\n5. Read logs/build.log.\n6. Run: node run-tests.mjs\n7. Read src/parser.ts.\n8. Edit src/parser.ts so that a trailing comma before the closing brace parses instead of failing. Keep the exported API unchanged.\n9. Read src/parser.ts again to confirm the edit.\n10. Run: node run-tests.mjs\nWork SILENTLY: never quote, summarise or describe what a file or command output contains. After each step reply with just its number. At the very end reply with the single word DONE.",
+  "probe_prompt": "Answer from this conversation only. Do not use any tool, do not read any file, do not guess. If the conversation no longer tells you an answer, write exactly UNKNOWN for that item. Reply as 14 numbered lines, each just the answer.\n1. Which contract number freezes the legacy parser?\n2. What is the minimum statement coverage the constraints require, in percent?\n3. What port does config.json set for the service?\n4. Who owns src/parser.ts in CODEOWNERS?\n5. What error code did the first test run print?\n6. What is the numeric value of LEGACY_EPOCH in the legacy parser?\n7. What artifact sha does the build log say was written?\n8. Which function did you edit?\n9. Which file did you edit?\n10. What statement coverage percentage did the test runner report?\n11. How many milliseconds did the build log say src/module_1200.ts took to transpile?\n12. How many milliseconds did the build log say src/module_2400.ts took to transpile?\n13. What does QUIRK_NOTE in the legacy parser say is rejected, and by which rule number?\n14. In the version of src/parser.ts you read BEFORE your edit, what did the code do when it met a COMMA token?",
+  "probes": [
+    {
+      "n": 1,
+      "expect": [
+        "CT-4417"
+      ],
+      "kind": "constraint"
+    },
+    {
+      "n": 2,
+      "expect": [
+        "82.5"
+      ],
+      "kind": "constraint"
+    },
+    {
+      "n": 3,
+      "expect": [
+        "7412"
+      ],
+      "kind": "small_read"
+    },
+    {
+      "n": 4,
+      "expect": [
+        "parser-guild"
+      ],
+      "kind": "small_read"
+    },
+    {
+      "n": 5,
+      "expect": [
+        "ERR_TRAILING_COMMA_4291"
+      ],
+      "kind": "error_string"
+    },
+    {
+      "n": 6,
+      "expect": [
+        "1714003200"
+      ],
+      "kind": "head_of_bulk"
+    },
+    {
+      "n": 7,
+      "expect": [
+        "9f3c2a1e"
+      ],
+      "kind": "tail_of_bulk"
+    },
+    {
+      "n": 8,
+      "expect": [
+        "parseObjectBody"
+      ],
+      "kind": "own_mutation"
+    },
+    {
+      "n": 9,
+      "expect": [
+        "src/parser.ts"
+      ],
+      "kind": "own_mutation"
+    },
+    {
+      "n": 10,
+      "expect": [
+        "84.1"
+      ],
+      "kind": "small_read"
+    },
+    {
+      "n": 11,
+      "expect": [
+        "19"
+      ],
+      "kind": "middle_of_bulk"
+    },
+    {
+      "n": 12,
+      "expect": [
+        "35"
+      ],
+      "kind": "middle_of_bulk"
+    },
+    {
+      "n": 13,
+      "expect": [
+        "613"
+      ],
+      "kind": "middle_of_bulk"
+    },
+    {
+      "n": 14,
+      "expect": [
+        "i += 1",
+        "i+=1",
+        "skip",
+        "advance",
+        "continue"
+      ],
+      "kind": "pre_edit_state"
+    }
+  ],
+  "notes": "Probes 11-13 sit in the middle of bulk output (a 113 KB log, a 70 KB file); no scheme that shrinks anything keeps them, and they are here so the benchmark cannot be read as rigged in favour of head-and-tail truncation. Probe 14 asks for the state of a file before an edit — the rules delete that read as superseded, so it tests whether the surviving Edit record carries enough. A fact the assistant retold in its own words survives every scheme, because no scheme edits assistant text; the scorer therefore drops any probe whose answer leaked into the narration before compaction, and arm D (rules set to destroy everything) exists to prove the remaining probes can actually fail."
+}

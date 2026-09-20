@@ -160,11 +160,39 @@ summary was generated. On a three-message session the same hook logs
 `0% smaller` and hands the compaction back to the built-in summary, as it
 should.
 
+### A/B against the built-in summary — the plugin loses
+
+`bench/` runs the same task in a sandbox with known ground truth, compacts the
+session four ways, then asks 14 probes with every tool disabled. Three runs,
+Claude Code 2.1.278:
+
+| arm | probes recalled | |
+| --- | --- | --- |
+| no compaction (control) | 41/42 | 98% |
+| built-in summary | 35/42 | 83% |
+| **these rules** | **32/42** | **76%** |
+| rules set to destroy everything | 11/42 | 26% |
+
+The last arm is the sensitivity check: without a treatment that must fail, a
+benchmark cannot be trusted — two earlier versions of this one scored every
+arm identically because the treatment never reached the probes.
+
+On the same case the summary also compressed harder: ~10 KB of summary against
+56 KB the rules kept, for a 130 KB transcript. It cost ~60 s and a model call;
+the rules cost 33 ms and nothing.
+
+**So: no claim that this retains more than the built-in summary. On this case
+it retains less.** What it does buy is exact strings instead of paraphrase,
+instant and free compaction, and a transcript that never leaves the machine.
+Full method, per-probe table and the benchmark's own defects:
+[`bench/RESULTS.md`](bench/RESULTS.md).
+
 ## Limitations — read these
 
-- **Characters removed is not task quality.** The 28.9% above is measured; that
-  the assistant does just as well on the remaining history is NOT. There is no
-  benchmark and no A/B against the built-in summary. Do not claim otherwise.
+- **The one A/B that exists says the built-in summary retains more** (83% vs
+  76% of probes, three runs, one synthetic case). The 28.9% figure above is
+  about size, not quality. Do not read either number as "better than
+  summarising".
 - The `Bash` classifier is a heuristic over command names. It errs towards
   "this changed something", which costs reduction, not correctness — but a
   read-only command it does not know is simply never cleaned up.
