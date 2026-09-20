@@ -107,7 +107,7 @@ CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude --plugin-dir .
 or as a marketplace:
 
 ```sh
-claude plugin marketplace add /path/to/verbatim-compaction
+claude plugin marketplace add alexkohinor/verbatim-compaction
 claude plugin install verbatim-compaction@verbatim-compaction
 ```
 

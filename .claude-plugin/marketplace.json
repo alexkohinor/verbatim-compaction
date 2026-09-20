@@ -1,6 +1,9 @@
 {
   "name": "verbatim-compaction",
-  "owner": { "name": "local" },
+  "owner": {
+    "name": "Alex Kohinor",
+    "url": "https://github.com/alexkohinor"
+  },
   "plugins": [
     {
       "name": "verbatim-compaction",
