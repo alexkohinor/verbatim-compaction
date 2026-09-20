@@ -116,12 +116,37 @@ toast reads `verbatim-compaction: kept N/M messages verbatim, no summary (…)`,
 or `built-in summary instead (…)` when the rules could not free enough. Every
 decision is written to `$.ui.log`, so what was deleted is always inspectable.
 
+## Measured on real sessions
+
+Eight of the author's own Claude Code transcripts, run through the default
+options with `scripts/transcript_to_messages.py` + `scripts/measure.ts`
+(everything local, nothing sent anywhere):
+
+| session | messages | before | after | removed | calls | dropped whole | output cut |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 9341 | 11.79M | 8.68M | 26.4% | 3689 | 215 | 1189 |
+| 2 | 1597 | 2.23M | 1.62M | 27.1% | 623 | 31 | 147 |
+| 3 | 6141 | 8.30M | 4.90M | 40.9% | 2466 | 60 | 1041 |
+| 4 | 6536 | 8.96M | 5.98M | 33.2% | 2634 | 142 | 981 |
+| 5 | 4330 | 5.17M | 3.48M | 32.7% | 1727 | 54 | 597 |
+| 6 | 4646 | 3.86M | 3.08M | 20.3% | 1791 | 6 | 522 |
+| 7 | 2749 | 5.33M | 4.62M | 13.2% | 887 | 9 | 269 |
+| 8 | 4001 | 3.38M | 2.49M | 26.3% | 1460 | 126 | 382 |
+
+49.0M → 34.9M characters, **28.9% removed overall**, 13–41% per session, under
+a second per session. Most of it comes from the budget rule (old tool output
+beyond the verbatim budget); supersession adds 0.3–17% on top, and exact
+duplicates are rare.
+
+These are whole session logs, not single context windows, so read the figure
+as "how much accumulated tool output is redundant", not as a context-window
+saving.
+
 ## Limitations — read these
 
-- **No evidence yet that it beats a summary on task outcome.** The rules are
-  argued from first principles and covered by unit tests; there is no
-  benchmark, no A/B against the built-in summary, no measured task-completion
-  comparison. Do not claim otherwise.
+- **Characters removed is not task quality.** The 28.9% above is measured; that
+  the assistant does just as well on the remaining history is NOT. There is no
+  benchmark and no A/B against the built-in summary. Do not claim otherwise.
 - The `Bash` classifier is a heuristic over command names. It errs towards
   "this changed something", which costs reduction, not correctness — but a
   read-only command it does not know is simply never cleaned up.

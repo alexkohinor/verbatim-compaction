@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "Rule-based verbatim compaction for Claude Code sessions: stale tool output is deleted, nothing is summarised, nothing leaves the machine.",
   "license": "MIT",
+  "author": {
+    "name": "Alex Kohinor"
+  },
   "userConfig": {
     "preserveRecentMessages": {
       "type": "number",
