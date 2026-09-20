@@ -57,6 +57,14 @@ kept, an unrecognised write is never deleted.
 
 ## Usage as a library
 
+```sh
+npm i alexkohinor/verbatim-compaction
+```
+
+(installing from GitHub for now; the package is not on npm yet. The install
+compiles `dist/` through the `prepare` script, so it needs nothing but Node 18+
+and git.)
+
 ```ts
 import { compact, reductionRatio, type Message } from 'verbatim-compaction';
 
