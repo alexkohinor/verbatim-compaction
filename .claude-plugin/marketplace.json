@@ -1,0 +1,13 @@
+{
+  "name": "verbatim-compaction",
+  "owner": { "name": "local" },
+  "plugins": [
+    {
+      "name": "verbatim-compaction",
+      "source": "./",
+      "description": "Rule-based verbatim compaction for Claude Code sessions.",
+      "version": "0.1.0",
+      "license": "MIT"
+    }
+  ]
+}

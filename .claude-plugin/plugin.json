@@ -1,0 +1,56 @@
+{
+  "name": "verbatim-compaction",
+  "version": "0.1.0",
+  "description": "Rule-based verbatim compaction for Claude Code sessions: stale tool output is deleted, nothing is summarised, nothing leaves the machine.",
+  "license": "MIT",
+  "userConfig": {
+    "preserveRecentMessages": {
+      "type": "number",
+      "title": "Recent messages to preserve",
+      "description": "Number of newest messages never touched. The first message is always kept.",
+      "default": 6
+    },
+    "resultBudgetChars": {
+      "type": "number",
+      "title": "Verbatim tool output budget",
+      "description": "Characters of tool output kept verbatim, newest first; older output is cut to head and tail.",
+      "default": 60000
+    },
+    "keepUnderChars": {
+      "type": "number",
+      "title": "Always keep results under",
+      "description": "Results at or below this size are never cut, because cutting them saves nothing.",
+      "default": 600
+    },
+    "headChars": {
+      "type": "number",
+      "title": "Head kept when cutting",
+      "description": "Characters kept from the start of a cut tool result.",
+      "default": 400
+    },
+    "tailChars": {
+      "type": "number",
+      "title": "Tail kept when cutting",
+      "description": "Characters kept from the end of a cut tool result (where errors usually are).",
+      "default": 200
+    },
+    "dropSupersededCalls": {
+      "type": "boolean",
+      "title": "Remove superseded read calls",
+      "description": "Remove a read whose file was read or written again later, instead of keeping an empty record of it. Calls that changed something are never removed.",
+      "default": true
+    },
+    "minReductionRatio": {
+      "type": "number",
+      "title": "Minimum reduction",
+      "description": "Below this share of characters removed, Claude Code's built-in summary is used instead.",
+      "default": 0.2
+    },
+    "compactAtPercent": {
+      "type": "number",
+      "title": "Auto-compact at context percent",
+      "description": "Ask for compaction once the context is this full. 0 leaves the timing to Claude Code.",
+      "default": 0
+    }
+  }
+}
