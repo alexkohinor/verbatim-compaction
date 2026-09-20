@@ -142,6 +142,24 @@ These are whole session logs, not single context windows, so read the figure
 as "how much accumulated tool output is redundant", not as a context-window
 saving.
 
+### Verified in a live session
+
+Claude Code 2.1.278, a headless session that read six files (one of them
+twice), then `/compact`:
+
+```
+decisions: t1:Read:drop_call/superseded/-7246ch t2:Read:truncate_result/over_budget/-4592ch
+           t3:…/-3861ch t4:…/-3885ch t5:…/-3463ch t6:…/-6515ch
+verbatim-compaction: kept 15/17 messages verbatim, no summary
+                     (71% smaller, ~10469→3076 tokens; 1 calls dropped, 5 results cut)
+session.compact settled in 33.2ms
+```
+
+The duplicate read was removed whole, the rest keeps head and tail, and no
+summary was generated. On a three-message session the same hook logs
+`0% smaller` and hands the compaction back to the built-in summary, as it
+should.
+
 ## Limitations — read these
 
 - **Characters removed is not task quality.** The 28.9% above is measured; that
@@ -157,8 +175,8 @@ saving.
 - Token figures in `stats` are an estimate from character classes, not a
   tokenizer. Nothing in the logic depends on them.
 - The Claude Code hook surface is early access and `types/claude-code.d.ts`
-  here is a hand-written minimal subset; it will need updating when that API
-  moves.
+  here is a hand-written minimal subset; it loads and runs on 2.1.278 and will
+  need updating when that API moves.
 
 ## Development
 
