@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
+#
+#  ############################################################################
+#  #  SUPERSEDED — THIS HARNESS MEASURES NOTHING. Use bench/live.sh instead.  #
+#  ############################################################################
+#
+#  It forks the base session and compacts each fork, but a resumed session
+#  reloads its log, so the compaction never reaches the probe turn: every
+#  treated arm is the untreated control wearing a different name. It is kept
+#  only because the failure is instructive — see "Three harnesses that measured
+#  nothing" in bench/RESULTS.md. Running it produces numbers that look clean
+#  and mean nothing.
+#
 # A/B/C benchmark: does the assistant still know what it needs after compaction?
 #
 #   base session (does real work in a sandbox repo)
