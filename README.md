@@ -1,5 +1,7 @@
 # verbatim-compaction
 
+[![npm](https://img.shields.io/npm/v/verbatim-compaction?style=flat-square&color=1f6feb)](https://www.npmjs.com/package/verbatim-compaction)
+[![install size](https://img.shields.io/bundlephobia/min/verbatim-compaction?style=flat-square&color=2f6f4e&label=minified)](https://bundlephobia.com/package/verbatim-compaction)
 [![licence MIT](https://img.shields.io/badge/licence-MIT-1f6feb?style=flat-square)](LICENSE)
 [![zero dependencies](https://img.shields.io/badge/dependencies-none-2f6f4e?style=flat-square)](package.json)
 [![no network](https://img.shields.io/badge/network-never-2f6f4e?style=flat-square)](#what-and-why)
@@ -64,12 +66,11 @@ kept, an unrecognised write is never deleted.
 ## Usage as a library
 
 ```sh
-npm i alexkohinor/verbatim-compaction
+npm i verbatim-compaction
 ```
 
-(installing from GitHub for now; the package is not on npm yet. The install
-compiles `dist/` through the `prepare` script, so it needs nothing but Node 18+
-and git.)
+Straight from the repository also works, and builds `dist/` on install through
+the `prepare` script: `npm i alexkohinor/verbatim-compaction`.
 
 ```ts
 import { compact, reductionRatio, type Message } from 'verbatim-compaction';
