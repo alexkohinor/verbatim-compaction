@@ -4,14 +4,40 @@
   "description": "Rule-based, verbatim context compaction for Claude Code sessions. No model, no network, no API key.",
   "type": "module",
   "license": "MIT",
-  "engines": { "node": ">=18" },
+  "author": "Alex Kohinor (https://github.com/alexkohinor)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexkohinor/verbatim-compaction.git"
+  },
+  "homepage": "https://github.com/alexkohinor/verbatim-compaction#readme",
+  "bugs": {
+    "url": "https://github.com/alexkohinor/verbatim-compaction/issues"
+  },
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "context",
+    "compaction",
+    "llm",
+    "agents",
+    "transcript",
+    "tokens"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit && npm run typecheck:hooks",
