@@ -1,5 +1,11 @@
 # verbatim-compaction
 
+[![licence MIT](https://img.shields.io/badge/licence-MIT-1f6feb?style=flat-square)](LICENSE)
+[![zero dependencies](https://img.shields.io/badge/dependencies-none-2f6f4e?style=flat-square)](package.json)
+[![no network](https://img.shields.io/badge/network-never-2f6f4e?style=flat-square)](#what-and-why)
+[![Claude Code 2.1.274+](https://img.shields.io/badge/Claude%20Code-2.1.274%2B-6b4fbb?style=flat-square)](#install-in-claude-code)
+[![benchmark 86% vs 77%](https://img.shields.io/badge/benchmark-86%25%20vs%2077%25%20summary-8a6d1f?style=flat-square)](bench/RESULTS.md)
+
 Claude Code plugin that compacts a session by **deleting stale tool output
 instead of summarising it**. Everything kept is byte-for-byte what it was.
 Rules only: no model, no network, no API key, nothing leaves the machine.
