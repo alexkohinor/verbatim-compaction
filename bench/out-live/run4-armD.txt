@@ -1,0 +1,14 @@
+1. UNKNOWN
+2. UNKNOWN
+3. UNKNOWN
+4. @parser-guild
+5. UNKNOWN
+6. UNKNOWN
+7. UNKNOWN
+8. UNKNOWN
+9. src/parser.ts
+10. 84.1%
+11. UNKNOWN
+12. UNKNOWN
+13. UNKNOWN
+14. It advanced past the comma (`i += 1; continue;`) — but only after the CLOSE_BRACE check, which came first in the loop.

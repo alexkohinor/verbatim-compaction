@@ -1,0 +1,17 @@
+I'll work through the steps.
+1
+2
+3
+4
+
+5
+6
+
+7
+
+I'll make the COMMA branch explicitly handle a trailing comma before the closing brace (which also satisfies the ordering the runner checks).
+8
+9
+10
+
+DONE

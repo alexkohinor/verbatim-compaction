@@ -1,0 +1,104 @@
+=== run 1 arm A
+    arm A: 3 turns, edit landed: True, answer 255 bytes, narration 47 chars
+=== run 1 arm B
+    arm B: 3 turns, edit landed: True, answer 427 bytes, narration 45 chars
+=== run 1 arm C
+    arm C: 2 turns, edit landed: True, answer 279 bytes, narration 45 chars
+=== run 1 arm D
+    arm D: 3 turns, edit landed: True, answer 335 bytes, narration 45 chars
+=== run 2 arm A
+    arm A: 3 turns, edit landed: True, answer 244 bytes, narration 49 chars
+=== run 2 arm B
+    arm B: 3 turns, edit landed: True, answer 434 bytes, narration 45 chars
+=== run 2 arm C
+    arm C: 2 turns, edit landed: True, answer 279 bytes, narration 45 chars
+=== run 2 arm D
+    arm D: 3 turns, edit landed: True, answer 317 bytes, narration 45 chars
+=== run 3 arm A
+    arm A: 3 turns, edit landed: True, answer 295 bytes, narration 44 chars
+=== run 3 arm B
+    arm B: 3 turns, edit landed: True, answer 346 bytes, narration 44 chars
+=== run 3 arm C
+    arm C: 2 turns, edit landed: True, answer 282 bytes, narration 45 chars
+=== run 3 arm D
+    arm D: 3 turns, edit landed: True, answer 279 bytes, narration 60 chars
+=== run 4 arm A
+    arm A: 3 turns, edit landed: True, answer 255 bytes, narration 49 chars
+=== run 4 arm B
+    arm B: 3 turns, edit landed: True, answer 328 bytes, narration 60 chars
+=== run 4 arm C
+    arm C: 2 turns, edit landed: True, answer 287 bytes, narration 54 chars
+=== run 4 arm D
+    arm D: 3 turns, edit landed: True, answer 279 bytes, narration 49 chars
+=== run 5 arm A
+    arm A: 3 turns, edit landed: True, answer 283 bytes, narration 16 chars
+=== run 5 arm B
+    arm B: 3 turns, edit landed: True, answer 344 bytes, narration 49 chars
+=== run 5 arm C
+    arm C: 2 turns, edit landed: True, answer 279 bytes, narration 49 chars
+=== run 5 arm D
+    arm D: 3 turns, edit landed: True, answer 324 bytes, narration 51 chars
+=== run 6 arm A
+    arm A: 3 turns, edit landed: True, answer 225 bytes, narration 48 chars
+=== run 6 arm B
+    arm B: 3 turns, edit landed: True, answer 269 bytes, narration 44 chars
+=== run 6 arm C
+    arm C: 2 turns, edit landed: True, answer 279 bytes, narration 49 chars
+=== run 6 arm D
+    arm D: 3 turns, edit landed: True, answer 232 bytes, narration 44 chars
+=== run 7 arm A
+    arm A: 3 turns, edit landed: True, answer 225 bytes, narration 53 chars
+=== run 7 arm B
+    arm B: 3 turns, edit landed: True, answer 337 bytes, narration 45 chars
+=== run 7 arm C
+    arm C: 2 turns, edit landed: True, answer 287 bytes, narration 45 chars
+=== run 7 arm D
+    arm D: 3 turns, edit landed: True, answer 236 bytes, narration 45 chars
+=== run 8 arm A
+    arm A: 3 turns, edit landed: True, answer 225 bytes, narration 188 chars
+=== run 8 arm B
+    arm B: 3 turns, edit landed: True, answer 320 bytes, narration 45 chars
+=== run 8 arm C
+    arm C: 2 turns, edit landed: True, answer 329 bytes, narration 49 chars
+=== run 8 arm D
+    arm D: 3 turns, edit landed: True, answer 274 bytes, narration 54 chars
+=== run 9 arm A
+    arm A: 3 turns, edit landed: True, answer 274 bytes, narration 59 chars
+=== run 9 arm B
+    arm B: 3 turns, edit landed: True, answer 398 bytes, narration 47 chars
+=== run 9 arm C
+    arm C: 2 turns, edit landed: True, answer 279 bytes, narration 45 chars
+=== run 9 arm D
+    arm D: 3 turns, edit landed: True, answer 236 bytes, narration 45 chars
+=== run 10 arm A
+    arm A: 3 turns, edit landed: True, answer 293 bytes, narration 17 chars
+=== run 10 arm B
+    arm B: 3 turns, edit landed: True, answer 328 bytes, narration 46 chars
+=== run 10 arm C
+    arm C: 2 turns, edit landed: True, answer 282 bytes, narration 47 chars
+=== run 10 arm D
+    arm D: 3 turns, edit landed: True, answer 286 bytes, narration 44 chars
+
+arm                        probes recalled
+A verbatim rules           120/140     86%
+B built-in summary         108/140     77%
+C no compaction            138/140     99%
+D rules set to destroy      42/140     30%
+
+probe kind                    A      B      C      D
+1     constraint              +      +      +      -
+2     constraint              +      +      +      -
+3     small_read              +      +      +      -
+4     small_read              +    90%      +      +
+5     error_string            +      +      +    20%
+6     head_of_bulk            +    70%      +      -
+7     tail_of_bulk            +    50%      +      -
+8     own_mutation            +      +      +      -
+9     own_mutation            +      +      +      +
+10    small_read              +      +      +      +
+11    middle_of_bulk          -      -    80%      -
+12    middle_of_bulk          +      -      +      -
+13    middle_of_bulk          -    70%      +      -
+14    pre_edit_state          +      +      +      +
+
++ recalled in every run, - in none, a percentage in between

@@ -1,0 +1,14 @@
+1. UNKNOWN
+2. UNKNOWN
+3. UNKNOWN
+4. @parser-guild
+5. ERR_TRAILING_COMMA_4291
+6. UNKNOWN
+7. UNKNOWN
+8. UNKNOWN
+9. src/parser.ts
+10. 84.1%
+11. UNKNOWN
+12. UNKNOWN
+13. UNKNOWN
+14. It advanced past it (`i += 1;`) and continued the loop.

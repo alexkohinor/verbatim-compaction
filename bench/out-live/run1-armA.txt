@@ -1,14 +1,14 @@
 1. CT-4417
-2. 82.5%
+2. 82.5
 3. 7412
 4. @parser-guild
 5. ERR_TRAILING_COMMA_4291
 6. 1714003200
-7. UNKNOWN
-8. None — the edit was blocked; the attempt targeted parseObjectBody
-9. None — no file was edited; the attempt targeted src/parser.ts
+7. 9f3c2a1e
+8. parseObjectBody
+9. src/parser.ts
 10. 84.1%
 11. UNKNOWN
-12. UNKNOWN
+12. 35ms
 13. UNKNOWN
-14. It skipped the comma: `i += 1; continue;`
+14. It incremented the index by one and continued the loop (skipped the comma).

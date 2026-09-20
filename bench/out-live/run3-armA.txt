@@ -11,4 +11,4 @@
 11. UNKNOWN
 12. 35ms
 13. UNKNOWN
-14. It incremented the index by one and continued the loop (skipping the comma), but that branch came after the CLOSE_BRACE check.
+14. It incremented i by 1 and continued the loop (skipped the comma), but that branch came after the CLOSE_BRACE check

@@ -2,13 +2,13 @@
 2. UNKNOWN
 3. UNKNOWN
 4. @parser-guild
-5. ERR_TRAILING_COMMA_4291
+5. UNKNOWN
 6. UNKNOWN
 7. UNKNOWN
-8. parseObjectBody (edit attempted, denied)
-9. src/parser.ts (edit attempted, denied)
-10. UNKNOWN
+8. UNKNOWN
+9. src/parser.ts
+10. 84.1%
 11. UNKNOWN
 12. UNKNOWN
 13. UNKNOWN
-14. It skipped it: `i += 1; continue;` — and the `CLOSE_BRACE` check came before the `COMMA` check
+14. It advanced past the comma and continued the loop (the close-brace check came before it), so a comma immediately before the closing brace was not handled as a trailing comma.

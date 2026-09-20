@@ -160,39 +160,41 @@ summary was generated. On a three-message session the same hook logs
 `0% smaller` and hands the compaction back to the built-in summary, as it
 should.
 
-### A/B against the built-in summary — the plugin loses
+### A/B against the built-in summary
 
 `bench/` runs the same task in a sandbox with known ground truth, compacts the
-session four ways, then asks 14 probes with every tool disabled. Three runs,
-Claude Code 2.1.278:
+session four ways, then asks 14 probes with every tool disabled — the answers
+can only come from what compaction left. Ten runs, Claude Code 2.1.278:
 
 | arm | probes recalled | |
 | --- | --- | --- |
-| no compaction (control) | 41/42 | 98% |
-| built-in summary | 35/42 | 83% |
-| **these rules** | **32/42** | **76%** |
-| rules set to destroy everything | 11/42 | 26% |
+| no compaction (control) | 138/140 | 99% |
+| **these rules** | **120/140** | **86%** |
+| built-in summary | 108/140 | 77% |
+| rules set to destroy everything | 42/140 | 30% |
 
 The last arm is the sensitivity check: without a treatment that must fail, a
-benchmark cannot be trusted — two earlier versions of this one scored every
-arm identically because the treatment never reached the probes.
+benchmark cannot be trusted — three earlier versions of this one scored the
+treated arms like the control because the treatment never reached the probes.
+Two gates keep a run honest: every session's edit is verified against a file
+hash (40 of 40 landed), and any probe the assistant had already answered in
+its own words before compaction is dropped unscored.
 
-On the same case the summary also compressed harder: ~10 KB of summary against
-56 KB the rules kept, for a 130 KB transcript. It cost ~60 s and a model call;
-the rules cost 33 ms and nothing.
+**But they are not compared at equal size.** The rules kept 56 KB of a 130 KB
+transcript; the summary kept ~10 KB. Keeping five times more context, exactly,
+bought nine points — in 33 ms and for nothing, against ~60 s and a model call.
+Where the summary loses is exactness: an exact sha survived it half the time.
+Where the rules lose is depth: a fact in the middle of a 113 KB log is gone,
+and a summariser can still carry it out.
 
-**So: no claim that this retains more than the built-in summary. On this case
-it retains less.** What it does buy is exact strings instead of paraphrase,
-instant and free compaction, and a transcript that never leaves the machine.
-Full method, per-probe table and the benchmark's own defects:
-[`bench/RESULTS.md`](bench/RESULTS.md).
+Method, per-probe table, the three broken harnesses and the benchmark's own
+defects: [`bench/RESULTS.md`](bench/RESULTS.md).
 
 ## Limitations — read these
 
-- **The one A/B that exists says the built-in summary retains more** (83% vs
-  76% of probes, three runs, one synthetic case). The 28.9% figure above is
-  about size, not quality. Do not read either number as "better than
-  summarising".
+- **The one A/B that exists is a single synthetic case.** 86% against 77% is
+  nine points on that case, at five times the retained context, not a general
+  property of either scheme. The 28.9% figure above is about size, not quality.
 - The `Bash` classifier is a heuristic over command names. It errs towards
   "this changed something", which costs reduction, not correctness — but a
   read-only command it does not know is simply never cleaned up.

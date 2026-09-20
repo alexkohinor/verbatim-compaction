@@ -8,7 +8,7 @@
 8. parseObjectBody
 9. src/parser.ts
 10. 84.1%
-11. 19ms
+11. UNKNOWN
 12. 35ms
 13. A unicode NBSP in keys, rejected by rule 613
-14. It incremented the index by 1 and continued the loop (skipped the comma)
+14. It incremented i by 1 and continued the loop (skipped the comma)

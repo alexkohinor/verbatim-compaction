@@ -10,5 +10,5 @@
 10. 84.1%
 11. UNKNOWN
 12. UNKNOWN
-13. A unicode NBSP in keys, rejected by rule 613
-14. It incremented the index by 1 and continued the loop (skipped the comma)
+13. a unicode NBSP in keys, rejected by rule 613
+14. It incremented the index by 1 and continued the loop (skipped the comma), but that branch came after the CLOSE_BRACE check, so a comma immediately before the closing brace was not handled as a trailing comma

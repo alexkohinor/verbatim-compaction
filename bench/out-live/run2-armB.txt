@@ -4,11 +4,11 @@
 4. @parser-guild
 5. ERR_TRAILING_COMMA_4291
 6. 1714003200
-7. 9f3c2a1e
+7. UNKNOWN
 8. parseObjectBody
 9. src/parser.ts
 10. 84.1%
 11. UNKNOWN
 12. UNKNOWN
-13. A unicode NBSP in keys, rejected by rule 613
-14. It skipped it: incremented the index by 1 and continued the loop (that check came after the CLOSE_BRACE check)
+13. a unicode NBSP in keys, rejected by rule 613
+14. It skipped the comma unconditionally — `i += 1; continue;` — with no lookahead, and since the CLOSE_BRACE check came before it, a comma followed by a closing brace fell through to being treated as a key/value pair.

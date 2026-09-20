@@ -1,0 +1,14 @@
+1. CT-4417
+2. 82.5
+3. 7412
+4. UNKNOWN
+5. ERR_TRAILING_COMMA_4291
+6. UNKNOWN
+7. UNKNOWN
+8. parseObjectBody
+9. src/parser.ts
+10. 84.1%
+11. UNKNOWN
+12. UNKNOWN
+13. UNKNOWN
+14. It skipped the comma: `i += 1; continue;` — advancing one token and continuing the loop, with the CLOSE_BRACE check placed before the COMMA branch.
