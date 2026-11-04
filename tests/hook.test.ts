@@ -55,7 +55,8 @@ describe('session messages', () => {
     ];
     const input = messages.map((message, i) => ({ ...message, handle: `h${i}` }));
     const result = compact(input as Message[], { resultBudgetChars: 0 });
-    const mapped = toSessionMessages(asSession(input), result.messages);
+    // Tail of 8 = the padding: only the call and its result are outside it.
+    const mapped = toSessionMessages(asSession(input), result.messages, 8);
     const rewritten = mapped.filter((message) => message.handle === undefined);
     expect(rewritten).toHaveLength(2);
     expect(rewritten.some((message) => (message.toolResults ?? [])[0]?.text.includes('cut'))).toBe(
