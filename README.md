@@ -49,7 +49,9 @@ check, and it never deletes the record of anything that changed the world.
    sessions half of what is left after rules 1–3 is write payloads.
 
 A result or an input field no larger than `keepUnderChars` is never cut —
-cutting it saves nothing. A result and its call are removed together, so no result is ever left
+cutting it saves nothing. When anything is rewritten, the hook hands back whole model responses —
+all the calls of one response in one message, then their results — never half
+a response rewritten and half untouched, which the engine would split apart. A result and its call are removed together, so no result is ever left
 without its call. Message text — yours and the assistant's — is never removed,
 shortened or rewritten.
 

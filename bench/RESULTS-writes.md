@@ -94,6 +94,28 @@ plugin must never rebuild part of a response. The plugin cannot see message
 ids (SessionMessage carries only `handle`), so a plugin-side fix needs a rule
 for which entries form one response — not yet written.
 
+## Fix and re-measurement
+
+The hook now never returns half a response rebuilt (`toSessionMessages`,
+`pinnedTailStart`): once anything is rebuilt, the region between the first
+message and the pinned tail is rebuilt as API messages — one assistant message
+per response with all its calls (an entry seen while a call is unanswered joins
+the open response), then one message with all its results — and the pinned tail
+starts at a response start. Three intermediate versions were measured on the
+parallel case before this one; each fixed one failure and exposed the next:
+
+| version | parallel case, arm A |
+| --- | --- |
+| 0.2.0 as first pushed (one entry rebuilt) | 18/30 60% |
+| + rebuild every tool entry, no handles | 20/30 67% — each rebuilt entry its own message |
+| + merge adjacent entries | 23/30 77% — pinned tail began inside a response |
+| + tail moved back past adjacent call entries | 22/30 73% — calls and results interleaved within one response |
+| **+ whole responses by the unanswered-call rule, tail at a response start** | **24/30 80%** — the ceiling: only the two middle-of-write probes, by design |
+
+Final version, three runs, every one with four parallel calls in one response:
+80% in each run, the same as the sequential case. Typecheck and 47 tests pass
+(run on the test-runner VM).
+
 ## Limits
 
 Three runs, one synthetic case, one model. Arm D and the edit gate held, so the

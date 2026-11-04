@@ -1,0 +1,3 @@
+All seven steps are finished, and `node check.mjs` printed a pass. Last word:
+
+DONE
