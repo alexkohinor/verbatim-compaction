@@ -46,6 +46,11 @@ export function resolveHookConfig(options: PluginOptions): HookConfig {
     compactAtPercent: optionNumber(options, 'compactAtPercent', HOOK_DEFAULTS.compactAtPercent),
     minReductionRatio: optionNumber(options, 'minReductionRatio', HOOK_DEFAULTS.minReductionRatio),
   };
+  // userConfig has no Infinity: 0 there means «keep every input whole».
+  const inputBudget = options['inputBudgetChars'];
+  if (typeof inputBudget === 'number' && Number.isFinite(inputBudget)) {
+    config.inputBudgetChars = inputBudget <= 0 ? Infinity : inputBudget;
+  }
   if (options['dropSupersededCalls'] === false) config.dropSupersededCalls = false;
   return config;
 }
@@ -126,11 +131,15 @@ export function decisionLogLines(
   maxChars: number = UI_LOG_MAX_CHARS,
 ): string[] {
   const entries = result.decisions
-    .filter((decision) => decision.action !== 'keep')
-    .map(
-      (decision) =>
-        `${decision.id}:${decision.tool}:${decision.action}/${decision.reason}/-${decision.savedChars}ch`,
-    );
+    .filter((decision) => decision.action !== 'keep' || decision.inputAction !== 'keep')
+    .map((decision) => {
+      const parts: string[] = [];
+      if (decision.action !== 'keep') {
+        parts.push(`${decision.action}/${decision.reason}/-${decision.savedChars}ch`);
+      }
+      if (decision.inputAction !== 'keep') parts.push(`truncate_input/-${decision.inputSavedChars}ch`);
+      return `${decision.id}:${decision.tool}:${parts.join('+')}`;
+    });
   if (entries.length === 0) return ['decisions: (nothing cut)'];
   const chunks: string[] = [];
   let current = '';

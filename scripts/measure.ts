@@ -27,6 +27,9 @@ for (const file of files) {
   totalAfter += stats.charsAfter;
   const reasons = new Map<string, number>();
   for (const decision of result.decisions) {
+    if (decision.inputAction === 'truncate_input') {
+      reasons.set('input_over_budget', (reasons.get('input_over_budget') ?? 0) + decision.inputSavedChars);
+    }
     if (decision.action === 'keep') continue;
     reasons.set(decision.reason, (reasons.get(decision.reason) ?? 0) + decision.savedChars);
   }

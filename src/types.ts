@@ -58,6 +58,9 @@ export interface ToolCall {
 
 export type CallAction = 'keep' | 'truncate_result' | 'drop_call';
 
+/** What happens to the call's INPUT; independent of what happens to its result. */
+export type InputAction = 'keep' | 'truncate_input';
+
 export type DecisionReason =
   /** In a pinned message. */
   | 'pinned'
@@ -81,8 +84,18 @@ export interface CallDecision {
   reason: DecisionReason;
   /** Result characters before the decision. */
   chars: number;
-  /** Characters the decision removes. */
+  /** Characters the decision removes from the result. */
   savedChars: number;
+  /** Characters of the call's input (JSON). */
+  inputChars: number;
+  /**
+   * `truncate_input`: older than the input budget, so its long string fields
+   * (file content, edit strings, a heredoc) are cut to head and tail. The call
+   * itself, its tool, its path and every short field stay as recorded.
+   */
+  inputAction: InputAction;
+  /** Characters cutting the input removes. */
+  inputSavedChars: number;
 }
 
 export interface CompactOptions {
@@ -90,7 +103,13 @@ export interface CompactOptions {
   preserveRecentMessages?: number;
   /** Characters of tool output kept verbatim, newest first. Default 60000. */
   resultBudgetChars?: number;
-  /** Results at or below this size are never touched. Default 600. */
+  /**
+   * Characters of tool INPUT kept verbatim, newest first. Older calls keep
+   * their record, but string fields longer than `keepUnderChars` are cut to
+   * head and tail. Default 20000; `Infinity` keeps every input whole.
+   */
+  inputBudgetChars?: number;
+  /** Results and input fields at or below this size are never touched. Default 600. */
   keepUnderChars?: number;
   /** Characters kept from the head of a cut result. Default 400. */
   headChars?: number;
@@ -106,6 +125,7 @@ export interface CompactOptions {
 export interface ResolvedCompactOptions {
   preserveRecentMessages: number;
   resultBudgetChars: number;
+  inputBudgetChars: number;
   keepUnderChars: number;
   headChars: number;
   tailChars: number;
@@ -126,6 +146,7 @@ export interface CompactStats {
   pinned: number;
   kept: number;
   resultsTruncated: number;
+  inputsTruncated: number;
   callsDropped: number;
   ms: number;
 }

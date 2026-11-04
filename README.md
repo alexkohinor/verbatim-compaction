@@ -23,7 +23,7 @@ what to delete — which sends the whole conversation to that vendor on every
 compaction and decides deletions by probability.
 
 This plugin keeps the verbatim idea and drops both the vendor and the guess.
-It deletes only what is provably redundant, by three rules that a person can
+It deletes only what is provably redundant, by four rules that a person can
 check, and it never deletes the record of anything that changed the world.
 
 ## The rules
@@ -40,9 +40,16 @@ check, and it never deletes the record of anything that changed the world.
 3. **Budget.** What is left is kept verbatim, newest first, until
    `resultBudgetChars` is spent; older output is cut to its head and tail with
    a note in between.
+4. **Input budget.** Separately, call inputs are kept verbatim, newest first,
+   until `inputBudgetChars` is spent. An older call keeps its record — the
+   tool, the path, every short field — and only its long string fields (a
+   file's content, edit strings, a heredoc in a command) are cut to head and
+   tail with a note. A write's record is the evidence; its payload is on disk.
+   Without this rule a session that wrote a lot hardly shrinks: on real
+   sessions half of what is left after rules 1–3 is write payloads.
 
-A result no larger than `keepUnderChars` is never cut — cutting it saves
-nothing. A result and its call are removed together, so no result is ever left
+A result or an input field no larger than `keepUnderChars` is never cut —
+cutting it saves nothing. A result and its call are removed together, so no result is ever left
 without its call. Message text — yours and the assistant's — is never removed,
 shortened or rewritten.
 
@@ -94,7 +101,8 @@ The building blocks are exported too: `collectToolCalls`, `planDecisions`,
 | --- | --- | --- |
 | `preserveRecentMessages` | `6` | Newest messages never touched (the first is always kept) |
 | `resultBudgetChars` | `60000` | Tool output kept verbatim, newest first |
-| `keepUnderChars` | `600` | Results this small are never cut |
+| `inputBudgetChars` | `20000` | Tool input kept verbatim, newest first; older long fields cut to head and tail. `Infinity` (in the plugin's settings: `0`) keeps every input whole |
+| `keepUnderChars` | `600` | Results and input fields this small are never cut |
 | `headChars` | `400` | Head kept from a cut result |
 | `tailChars` | `200` | Tail kept from a cut result |
 | `dropSupersededCalls` | `true` | Remove a superseded read entirely, not just its output |

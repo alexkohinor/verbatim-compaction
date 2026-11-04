@@ -1,3 +1,4 @@
+import { cutInput, jsonChars } from './inputs.js';
 import type { CallDecision, ResolvedCompactOptions, ToolCall } from './types.js';
 
 export const NOTE_PREFIX = '[verbatim-compaction cut';
@@ -54,6 +55,12 @@ function inputChars(input: Record<string, unknown>): number {
  *    call that changed something keeps its record and loses only its output.
  * 3. What is left is kept verbatim newest first until `resultBudgetChars` is
  *    spent; older output is cut to head and tail.
+ * 4. Inputs, separately: kept verbatim newest first until `inputBudgetChars`
+ *    is spent; an older call keeps its record — tool, path, every short field —
+ *    and only its long string fields (file content, edit strings, a heredoc)
+ *    are cut to head and tail. This is what lets a session that wrote a lot
+ *    actually shrink: a write's record is never deleted, but its payload is
+ *    on disk.
  *
  * A result no larger than `keepUnderChars` is never cut, because it would not
  * save anything. Nothing is ever rewritten or summarised.
@@ -62,8 +69,13 @@ export function planDecisions(
   calls: readonly ToolCall[],
   options: Pick<
     ResolvedCompactOptions,
-    'resultBudgetChars' | 'keepUnderChars' | 'headChars' | 'tailChars' | 'dropSupersededCalls'
-  >,
+    | 'resultBudgetChars'
+    | 'keepUnderChars'
+    | 'headChars'
+    | 'tailChars'
+    | 'dropSupersededCalls'
+  > &
+    Partial<Pick<ResolvedCompactOptions, 'inputBudgetChars'>>,
 ): CallDecision[] {
   const lastByTarget = new Map<string, number>();
   const lastWriteByPath = new Map<string, number>();
@@ -81,6 +93,9 @@ export function planDecisions(
     reason: call.pinned ? 'pinned' : 'kept',
     chars: call.resultChars,
     savedChars: 0,
+    inputChars: jsonChars(call.input),
+    inputAction: 'keep',
+    inputSavedChars: 0,
   }));
 
   calls.forEach((call, index) => {
@@ -137,6 +152,26 @@ export function planDecisions(
       decision.reason = 'small_result';
     }
   });
+
+  const inputBudget = options.inputBudgetChars ?? Infinity;
+  if (inputBudget !== Infinity) {
+    let inputSpent = 0;
+    for (let index = calls.length - 1; index >= 0; index -= 1) {
+      const call = calls[index]!;
+      const decision = decisions[index]!;
+      if (decision.action === 'drop_call') continue;
+      if (call.pinned || inputSpent + decision.inputChars <= inputBudget) {
+        inputSpent += decision.inputChars;
+        continue;
+      }
+      const cut = cutInput(call.input, options.keepUnderChars, options.headChars, options.tailChars);
+      if (cut === call.input) continue;
+      const saved = decision.inputChars - jsonChars(cut);
+      if (saved <= 0) continue;
+      decision.inputAction = 'truncate_input';
+      decision.inputSavedChars = saved;
+    }
+  }
 
   return decisions;
 }
