@@ -21,6 +21,7 @@ ARM_NAMES = {
     'B': 'built-in summary',
     'C': 'no compaction',
     'D': 'rules set to destroy',
+    'O': 'verbatim rules 0.1.0 (no input budget)',
 }
 MUTATION_KINDS = {'own_mutation', 'pre_edit_state'}
 
