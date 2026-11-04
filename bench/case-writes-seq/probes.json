@@ -1,0 +1,77 @@
+{
+  "task": "You are working in this repository. Do these steps in order, using tools, and keep going until the end:\n1. Read docs/brief.md.\n2. Run: node gen.mjs\n3. With the Write tool (not a shell redirect, not a script), create src/table.ts containing one line per output row of step 2, in the same order, each exactly: export const ROW_NNNN = '<value>'; where NNNN and <value> are the row's id digits and value.\n4. Read logs/build.log.\n5. Read config.json.\n6. Read docs/notes.md.\n7. Run: node check.mjs\nMake exactly ONE tool call per message — never several calls in parallel. Work SILENTLY: never quote, summarise or describe what a file or command output contains. After each step reply with just its number. At the very end reply with the single word DONE.",
+  "probe_prompt": "Answer from this conversation only. Do not use any tool, do not read any file, do not guess. If the conversation no longer tells you an answer, write exactly UNKNOWN for that item. Reply as 10 numbered lines, each just the answer.\n1. Which ticket number does the brief name?\n2. In src/table.ts as you wrote it, what is the value of ROW_0001?\n3. In src/table.ts as you wrote it, what is the value of ROW_0200?\n4. In src/table.ts as you wrote it, what is the value of ROW_0400?\n5. In src/table.ts as you wrote it, what is the value of ROW_0800?\n6. Which file did you create?\n7. What artifact sha does the build log say was written?\n8. Which region does config.json set?\n9. Which release train do the notes name?\n10. What code did node check.mjs print?",
+  "probes": [
+    {
+      "n": 1,
+      "expect": [
+        "WR-5530"
+      ],
+      "kind": "small_read"
+    },
+    {
+      "n": 2,
+      "expect": [
+        "0f719b1f3a428a4d"
+      ],
+      "kind": "head_of_write"
+    },
+    {
+      "n": 3,
+      "expect": [
+        "3f37bad924cc95ca"
+      ],
+      "kind": "middle_of_write"
+    },
+    {
+      "n": 4,
+      "expect": [
+        "53892d2cd18887f8"
+      ],
+      "kind": "middle_of_write"
+    },
+    {
+      "n": 5,
+      "expect": [
+        "d512b77b97dfe941"
+      ],
+      "kind": "tail_of_write"
+    },
+    {
+      "n": 6,
+      "expect": [
+        "src/table.ts",
+        "table.ts"
+      ],
+      "kind": "own_mutation"
+    },
+    {
+      "n": 7,
+      "expect": [
+        "9c41e07ab2d3"
+      ],
+      "kind": "tail_of_bulk"
+    },
+    {
+      "n": 8,
+      "expect": [
+        "eu-north-7"
+      ],
+      "kind": "small_read"
+    },
+    {
+      "n": 9,
+      "expect": [
+        "Kestrel"
+      ],
+      "kind": "small_read"
+    },
+    {
+      "n": 10,
+      "expect": [
+        "K-7731"
+      ],
+      "kind": "recent_result"
+    }
+  ]
+}

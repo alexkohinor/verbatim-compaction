@@ -16,7 +16,7 @@
 set -uo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(dirname "$here")"
-case_dir="$here/case-writes"
+case_dir="${BENCH_CASE:-$here/case-writes}"
 sandbox="${BENCH_SANDBOX:-$HOME/.cache/verbatim-compaction-bench/writes-repo}"
 old_plugin="${BENCH_OLD_PLUGIN:?set BENCH_OLD_PLUGIN to a 0.1.0 checkout}"
 model="${BENCH_MODEL:-sonnet}"

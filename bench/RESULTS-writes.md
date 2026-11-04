@@ -47,6 +47,24 @@ small files, runs a check, then `/compact`, then 10 probes with every tool off.
    parallel calls after a hook compaction in a way the model reads poorly is
    not established. Until it is, 60% for A is a lower bound.
 
+## Follow-up: the same case with sequential calls
+
+`bench/case-writes-seq` is the same task with one line added — «exactly ONE tool
+call per message, never several in parallel» — run three times for arms A and B
+(the session logs confirm one call per message in all six).
+
+| arm | recalled |
+| --- | --- |
+| A, plugin 0.2.0 | 24/30 **80%** — everything except the two middle-of-write probes, in every run |
+| B, built-in summary | 20/30 **67%** |
+
+So probes 7–9 in the parallel case were lost to **parallel calls**, not to the
+rules: with sequential calls the rules keep every fact they were designed to
+keep, and beat the summary by 13 points. What happens to a hook-compacted
+conversation that contains parallel calls — where the plugin returns those
+messages untouched, by identity — still has to be found: the plugin, the
+engine's reassembly, or how the model reads the result.
+
 ## Limits
 
 Three runs, one synthetic case, one model. Arm D and the edit gate held, so the
