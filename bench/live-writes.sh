@@ -8,6 +8,8 @@
 #   arm B  plugin off                  (Claude Code's built-in summary)
 #   arm C  plugin off, no /compact     (control, upper bound)
 #   arm D  this checkout, options set to destroy (sensitivity check)
+#   arm K  this checkout, options set to keep everything: the hook hands back
+#          the messages it received, untouched (isolates the hook path itself)
 #
 # Edit gate: the session's table must pass check.mjs, else its mutation probes
 # are dropped. Narration guard: probes the assistant retold are dropped.
@@ -28,10 +30,12 @@ export CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1
 
 DESTROY='{"pluginConfigs":{"verbatim-compaction@inline":{"options":{"preserveRecentMessages":0,"resultBudgetChars":0,"inputBudgetChars":1,"keepUnderChars":0,"headChars":0,"tailChars":0,"minReductionRatio":0}}}}'
 
+KEEP='{"pluginConfigs":{"verbatim-compaction@inline":{"options":{"preserveRecentMessages":100000,"resultBudgetChars":100000000,"inputBudgetChars":0,"dropSupersededCalls":false,"minReductionRatio":0}}}}'
+
 read -r -d '' PY <<'PYEOF'
 import json, os, subprocess, sys
 
-case_dir, arm, plugin, destroy, prefix, repo, model = sys.argv[1:8]
+case_dir, arm, plugin, destroy, prefix, repo, model, keep = sys.argv[1:9]
 spec = json.load(open(os.path.join(case_dir, 'probes.json')))
 
 
@@ -43,10 +47,12 @@ def check():
 cmd = ['claude', '-p', '--model', model, '--input-format', 'stream-json',
        '--output-format', 'stream-json', '--verbose', '--permission-mode', 'acceptEdits',
        '--allowedTools', 'Read', 'Grep', 'Glob', 'Edit', 'Write', 'Bash']
-if arm in ('A', 'O', 'D'):
+if arm in ('A', 'O', 'D', 'K'):
     cmd += ['--plugin-dir', plugin]
 if arm == 'D':
     cmd += ['--settings', destroy]
+if arm == 'K':
+    cmd += ['--settings', keep]
 
 
 def message(text):
@@ -102,7 +108,7 @@ for run in $(seq 1 "$runs"); do
     plugin="$root"; [ "$arm" = O ] && plugin="$old_plugin"
     echo "=== run $run arm $arm"
     "$case_dir/setup.sh" "$sandbox" >/dev/null
-    timeout 1500 python3 -c "$PY" "$case_dir" "$arm" "$plugin" "$DESTROY" "$out/run${run}-arm${arm}" "$sandbox" "$model"
+    timeout 1500 python3 -c "$PY" "$case_dir" "$arm" "$plugin" "$DESTROY" "$out/run${run}-arm${arm}" "$sandbox" "$model" "$KEEP"
   done
 done
 

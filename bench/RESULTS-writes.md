@@ -65,6 +65,35 @@ conversation that contains parallel calls — where the plugin returns those
 messages untouched, by identity — still has to be found: the plugin, the
 engine's reassembly, or how the model reads the result.
 
+## Root cause of the parallel-call loss
+
+Arm K (`bench/out-writes-keep`): the hook returns every message untouched
+(budgets unbounded, `minReductionRatio` 0). Three runs, two of them with
+parallel calls: **30/30, 100%**. The hook path itself is fine.
+
+The difference is in what 0.2.0 rebuilds. In the failing sessions the model
+issued `Write` and three `Read`s **in one response** (one API message id,
+`…TcMjbU`, stored as separate transcript entries). The input budget cut the
+`Write` entry, so the plugin returned it rebuilt, without its `handle`; the
+engine gave the rebuilt entry a **new** message id, while the thinking block
+before it and the three `Read`s after it kept the old one. One API message
+became two, interleaved out of order:
+
+```
+before   TcMjbU [thinking] TcMjbU [Write] TcMjbU [Read] TcMjbU [Read] TcMjbU [Read]
+after    TcMjbU [thinking] a12e97 [Write] TcMjbU [Read] TcMjbU [Read] TcMjbU [Read]
+```
+
+and the three Read results were no longer where the model reads them from.
+Sequential calls never put two tool blocks in one response, which is why
+`case-writes-seq` scored 80%.
+
+So rebuilding **one block of a multi-block response** breaks the response.
+Either the engine should keep a rebuilt block in its original message, or the
+plugin must never rebuild part of a response. The plugin cannot see message
+ids (SessionMessage carries only `handle`), so a plugin-side fix needs a rule
+for which entries form one response — not yet written.
+
 ## Limits
 
 Three runs, one synthetic case, one model. Arm D and the edit gate held, so the
