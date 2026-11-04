@@ -1,6 +1,6 @@
 {
   "name": "verbatim-compaction",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Rule-based, verbatim context compaction for Claude Code sessions. No model, no network, no API key.",
   "type": "module",
   "license": "MIT",

@@ -1,0 +1,51 @@
+=== run 1 arm A
+    arm A: 3 turns, table passes check: True, answer 132 bytes
+=== run 1 arm O
+    arm O: 3 turns, table passes check: True, answer 136 bytes
+=== run 1 arm B
+    arm B: 3 turns, table passes check: True, answer 136 bytes
+=== run 1 arm C
+    arm C: 2 turns, table passes check: True, answer 158 bytes
+=== run 1 arm D
+    arm D: 3 turns, table passes check: True, answer 114 bytes
+=== run 2 arm A
+    arm A: 3 turns, table passes check: True, answer 132 bytes
+=== run 2 arm O
+    arm O: 3 turns, table passes check: True, answer 136 bytes
+=== run 2 arm B
+    arm B: 3 turns, table passes check: True, answer 136 bytes
+=== run 2 arm C
+    arm C: 2 turns, table passes check: True, answer 158 bytes
+=== run 2 arm D
+    arm D: 3 turns, table passes check: True, answer 114 bytes
+=== run 3 arm A
+    arm A: 3 turns, table passes check: True, answer 140 bytes
+=== run 3 arm O
+    arm O: 3 turns, table passes check: True, answer 118 bytes
+=== run 3 arm B
+    arm B: 3 turns, table passes check: True, answer 136 bytes
+=== run 3 arm C
+    arm C: 2 turns, table passes check: True, answer 158 bytes
+=== run 3 arm D
+    arm D: 3 turns, table passes check: True, answer 114 bytes
+
+arm                        probes recalled
+A verbatim rules            18/30      60%
+B built-in summary          18/30      60%
+C no compaction             30/30     100%
+D rules set to destroy       6/30      20%
+O verbatim rules 0.1.0 (no input budget)    16/30      53%
+
+probe kind                    A      B      C      D      O
+1     small_read              +      +      +      -      +
+2     head_of_write           +      +      +      -    67%
+3     middle_of_write         -      -      +      -      -
+4     middle_of_write         -      -      +      -      -
+5     tail_of_write           +      +      +      -    67%
+6     own_mutation            +      +      +      +      +
+7     tail_of_bulk          33%      -      +      -      -
+8     small_read            33%      +      +      -      +
+9     small_read            33%      +      +      -      +
+10    recent_result           +      -      +      +      -
+
++ recalled in every run, - in none, a percentage in between

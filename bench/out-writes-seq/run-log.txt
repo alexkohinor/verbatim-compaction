@@ -1,0 +1,30 @@
+=== run 1 arm A
+    arm A: 3 turns, table passes check: True, answer 140 bytes
+=== run 1 arm B
+    arm B: 3 turns, table passes check: True, answer 136 bytes
+=== run 2 arm A
+    arm A: 3 turns, table passes check: True, answer 140 bytes
+=== run 2 arm B
+    arm B: 3 turns, table passes check: True, answer 135 bytes
+=== run 3 arm A
+    arm A: 3 turns, table passes check: True, answer 140 bytes
+=== run 3 arm B
+    arm B: 3 turns, table passes check: True, answer 151 bytes
+
+arm                        probes recalled
+A verbatim rules            24/30      80%
+B built-in summary          20/30      67%
+
+probe kind                    A      B
+1     small_read              +      +
+2     head_of_write           +      +
+3     middle_of_write         -      -
+4     middle_of_write         -      -
+5     tail_of_write           +      +
+6     own_mutation            +      +
+7     tail_of_bulk            +      -
+8     small_read              +      +
+9     small_read              +      +
+10    recent_result           +    67%
+
++ recalled in every run, - in none, a percentage in between

@@ -1,3 +1,4 @@
+import { cutInput } from './inputs.js';
 import { cutText } from './plan.js';
 import type {
   CallDecision,
@@ -45,15 +46,22 @@ export function applyDecisions(
   messages: readonly Message[],
   calls: readonly ToolCall[],
   decisions: readonly CallDecision[],
-  options: Pick<ResolvedCompactOptions, 'headChars' | 'tailChars'>,
+  options: Pick<ResolvedCompactOptions, 'headChars' | 'tailChars'> &
+    Partial<Pick<ResolvedCompactOptions, 'keepUnderChars'>>,
 ): Message[] {
   const byId = new Map(calls.map((call) => [call.id, call]));
   const actions = new Map<string, CallDecision['action']>();
+  const cutInputs = new Set<string>();
   for (const decision of decisions) {
     const call = byId.get(decision.id);
-    if (call && decision.action !== 'keep') actions.set(call.tool_use_id, decision.action);
+    if (!call) continue;
+    if (decision.action !== 'keep') actions.set(call.tool_use_id, decision.action);
+    if (decision.inputAction === 'truncate_input' && decision.action !== 'drop_call') {
+      cutInputs.add(call.tool_use_id);
+    }
   }
-  if (actions.size === 0) return [...messages];
+  if (actions.size === 0 && cutInputs.size === 0) return [...messages];
+  const keepUnder = options.keepUnderChars ?? 600;
 
   const cut = (text: string, isError: boolean): string =>
     cutText(text, isError, options.headChars, options.tailChars);
@@ -61,7 +69,7 @@ export function applyDecisions(
   const kept: Message[] = [];
   for (const message of messages) {
     const touched =
-      message.toolUses.some((tool) => actions.has(tool.tool_use_id)) ||
+      message.toolUses.some((tool) => actions.has(tool.tool_use_id) || cutInputs.has(tool.tool_use_id)) ||
       (message.toolResults ?? []).some((result) => actions.has(result.tool_use_id));
     if (!touched) {
       kept.push(message);
@@ -76,15 +84,20 @@ export function applyDecisions(
         changed = true;
         continue;
       }
+      const input = cutInputs.has(tool.tool_use_id)
+        ? cutInput(tool.input, keepUnder, options.headChars, options.tailChars)
+        : tool.input;
+      let text = tool.text;
       if (action === 'truncate_result' && typeof tool.text === 'string') {
-        const text = cut(tool.text, tool.isError ?? false);
-        if (text !== tool.text) {
-          changed = true;
-          const copy: ToolUse = { tool_use_id: tool.tool_use_id, tool: tool.tool, input: tool.input, text };
-          if (tool.isError) copy.isError = true;
-          toolUses.push(copy);
-          continue;
-        }
+        text = cut(tool.text, tool.isError ?? false);
+      }
+      if (input !== tool.input || text !== tool.text) {
+        changed = true;
+        const copy: ToolUse = { tool_use_id: tool.tool_use_id, tool: tool.tool, input };
+        if (text !== undefined) copy.text = text;
+        if (tool.isError) copy.isError = true;
+        toolUses.push(copy);
+        continue;
       }
       toolUses.push(tool);
     }

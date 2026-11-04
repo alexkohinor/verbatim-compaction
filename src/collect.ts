@@ -5,6 +5,43 @@ export function isPinned(index: number, total: number, preserveRecentMessages: n
   return index === 0 || index >= total - preserveRecentMessages;
 }
 
+type Shape = Pick<Message, 'role' | 'text' | 'toolUses'> & { toolResults?: readonly { tool_use_id: string }[] };
+
+/**
+ * Indices where a model response starts — where nothing asked earlier is still
+ * waiting for its result. A response's tool calls can be stored as several
+ * entries with results between them; a new response cannot start before every
+ * call of the last one is answered, so a call entry seen while some call is
+ * unanswered belongs to the response already open. A call whose outcome rides
+ * on the tool_use and has no result entry anywhere is not waited for.
+ */
+export function responseStarts(messages: readonly Shape[]): Set<number> {
+  const answered = new Set<string>();
+  for (const message of messages) for (const r of message.toolResults ?? []) answered.add(r.tool_use_id);
+  const starts = new Set<number>();
+  const pending = new Set<string>();
+  messages.forEach((message, index) => {
+    if (pending.size === 0) starts.add(index);
+    for (const tool of message.toolUses) if (answered.has(tool.tool_use_id)) pending.add(tool.tool_use_id);
+    for (const result of message.toolResults ?? []) pending.delete(result.tool_use_id);
+  });
+  return starts;
+}
+
+/**
+ * Where the pinned tail starts: the newest `preserveRecentMessages`, moved back
+ * to the start of the response it would otherwise cut — pinning half a response
+ * while the other half is rebuilt splits it (bench/RESULTS-writes.md).
+ */
+export function pinnedTailStart(messages: readonly Shape[], preserveRecentMessages: number): number {
+  const target = Math.max(1, messages.length - preserveRecentMessages);
+  if (target >= messages.length) return messages.length;
+  const starts = responseStarts(messages);
+  let start = target;
+  while (start > 1 && !starts.has(start)) start -= 1;
+  return start;
+}
+
 /** The text of a call's outcome, whether the transcript stores it on the result or on the use. */
 export function outcomeOf(
   tool: { text?: string; isError?: boolean },
@@ -29,6 +66,8 @@ export function collectToolCalls(
     for (const result of message.toolResults ?? []) results.set(result.tool_use_id, { index, result });
   });
 
+  const tailStart = pinnedTailStart(messages, options.preserveRecentMessages);
+  const pinned = (index: number): boolean => index === 0 || index >= tailStart;
   const calls: ToolCall[] = [];
   messages.forEach((message, callIndex) => {
     for (const tool of message.toolUses) {
@@ -50,8 +89,7 @@ export function collectToolCalls(
         resultChars: outcome.text.length,
         isError: outcome.isError,
         pinned:
-          isPinned(callIndex, messages.length, options.preserveRecentMessages) ||
-          (resultIndex >= 0 && isPinned(resultIndex, messages.length, options.preserveRecentMessages)),
+          pinned(callIndex) || (resultIndex >= 0 && pinned(resultIndex)),
       });
     }
   });

@@ -12,6 +12,7 @@ import type { Message } from '../src/types.js';
 /** The tests build library messages; the hook takes the engine's shape. */
 const asSession = (messages: readonly Message[]): SessionMessage[] =>
   messages as unknown as SessionMessage[];
+import { pinnedTailStart } from '../src/collect.js';
 import { big, call, padding, resetIds, user } from './helpers.js';
 
 beforeEach(resetIds);
@@ -54,12 +55,69 @@ describe('session messages', () => {
     ];
     const input = messages.map((message, i) => ({ ...message, handle: `h${i}` }));
     const result = compact(input as Message[], { resultBudgetChars: 0 });
-    const mapped = toSessionMessages(asSession(input), result.messages);
+    // Tail of 8 = the padding: only the call and its result are outside it.
+    const mapped = toSessionMessages(asSession(input), result.messages, 8);
     const rewritten = mapped.filter((message) => message.handle === undefined);
     expect(rewritten).toHaveLength(2);
     expect(rewritten.some((message) => (message.toolResults ?? [])[0]?.text.includes('cut'))).toBe(
       true,
     );
+  });
+
+  it('rebuilds every tool entry outside the protected ends once one is rebuilt (one response, many entries)', () => {
+    // Write + three parallel Reads of ONE response arrive as separate entries,
+    // with the Write's result between them; only the Write's input is cut.
+    const messages: Message[] = [
+      user('task'),
+      { role: 'assistant', text: '', toolUses: [{ tool_use_id: 'w', tool: 'Write', input: { file_path: '/t.ts', content: big(30_000) }, text: 'ok' }] },
+      { role: 'user', text: '', toolUses: [], toolResults: [{ tool_use_id: 'w', text: 'ok' }] },
+      { role: 'assistant', text: '', toolUses: [{ tool_use_id: 'r1', tool: 'Read', input: { file_path: '/a' }, text: 'A' }] },
+      { role: 'assistant', text: '', toolUses: [{ tool_use_id: 'r2', tool: 'Read', input: { file_path: '/b' }, text: 'B' }] },
+      { role: 'user', text: '', toolUses: [], toolResults: [{ tool_use_id: 'r1', text: 'A' }] },
+      { role: 'user', text: '', toolUses: [], toolResults: [{ tool_use_id: 'r2', text: 'B' }] },
+      ...padding(6),
+    ];
+    const input = messages.map((message, i) => ({ ...message, handle: `h${i}` }));
+    const result = compact(input as Message[], { inputBudgetChars: 0 });
+    const mapped = toSessionMessages(asSession(input), result.messages, 6);
+    const toolEntries = mapped.slice(1, mapped.length - 6);
+    // Write · its result · both Reads as ONE call message · both results as ONE.
+    expect(toolEntries.map((m) => m.role)).toEqual(['assistant', 'user', 'assistant', 'user']);
+    expect(toolEntries.every((message) => message.handle === undefined)).toBe(true);
+    expect(toolEntries[2]!.toolUses.map((t) => t.tool_use_id)).toEqual(['r1', 'r2']);
+    expect(toolEntries[3]!.toolResults!.map((r) => r.tool_use_id)).toEqual(['r1', 'r2']);
+    expect(toolEntries[2]!.toolUses[0]!.input).toEqual({ file_path: '/a' });
+    expect(mapped[0]!.handle).toBe('h0');
+    expect(mapped.slice(-6).every((message) => message.handle !== undefined)).toBe(true);
+  });
+
+  it('moves the pinned tail back so it never starts inside a run of call entries', () => {
+    const read = (id: string): Message => ({
+      role: 'assistant', text: '', toolUses: [{ tool_use_id: id, tool: 'Read', input: { file_path: `/${id}` }, text: id }],
+    });
+    const result = (id: string): Message => ({ role: 'user', text: '', toolUses: [], toolResults: [{ tool_use_id: id, text: id }] });
+    const messages: Message[] = [
+      user('task'),
+      ...call('Write', { file_path: '/t.ts', content: big(30_000) }, 'ok'),
+      read('r1'), read('r2'), result('r1'), result('r2'), ...padding(3),
+    ];
+    // preserve 6 would start the tail at r2 — inside the r1/r2 response.
+    expect(pinnedTailStart(messages, 6)).toBe(3);
+    const input = messages.map((message, i) => ({ ...message, handle: `h${i}` }));
+    const compacted = compact(input as Message[], { inputBudgetChars: 0, preserveRecentMessages: 6 });
+    const mapped = toSessionMessages(asSession(input), compacted.messages, 6);
+    const r1 = mapped.find((m) => m.toolUses.some((t) => t.tool_use_id === 'r1'))!;
+    const r2 = mapped.find((m) => m.toolUses.some((t) => t.tool_use_id === 'r2'))!;
+    expect(r1.handle).toBe('h3');
+    expect(r2.handle).toBe('h4');
+  });
+
+  it('keeps every handle when nothing was rebuilt', () => {
+    const messages: Message[] = [user('task'), ...call('Read', { file_path: '/a' }, 'small'), ...padding(6)];
+    const input = messages.map((message, i) => ({ ...message, handle: `h${i}` }));
+    const result = compact(input as Message[], {});
+    const mapped = toSessionMessages(asSession(input), result.messages, 6);
+    expect(mapped.every((message) => message.handle !== undefined)).toBe(true);
   });
 });
 

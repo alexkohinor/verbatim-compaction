@@ -12,6 +12,7 @@ import type {
 export const DEFAULT_OPTIONS: ResolvedCompactOptions = {
   preserveRecentMessages: 6,
   resultBudgetChars: 60_000,
+  inputBudgetChars: 20_000,
   keepUnderChars: 600,
   headChars: 400,
   tailChars: 200,
@@ -31,6 +32,12 @@ export function resolveOptions(options: CompactOptions = {}): ResolvedCompactOpt
       Math.floor(finite(options.preserveRecentMessages, DEFAULT_OPTIONS.preserveRecentMessages)),
     ),
     resultBudgetChars: Math.max(0, finite(options.resultBudgetChars, DEFAULT_OPTIONS.resultBudgetChars)),
+    inputBudgetChars: Math.max(
+      0,
+      options.inputBudgetChars === Infinity
+        ? Infinity
+        : finite(options.inputBudgetChars, DEFAULT_OPTIONS.inputBudgetChars),
+    ),
     keepUnderChars: Math.max(0, finite(options.keepUnderChars, DEFAULT_OPTIONS.keepUnderChars)),
     headChars: Math.max(0, Math.floor(finite(options.headChars, DEFAULT_OPTIONS.headChars))),
     tailChars: Math.max(0, Math.floor(finite(options.tailChars, DEFAULT_OPTIONS.tailChars))),
@@ -95,6 +102,7 @@ export function compact(messages: readonly Message[], options: CompactOptions = 
       pinned: decisions.filter((d) => d.reason === 'pinned').length,
       kept: count('keep'),
       resultsTruncated: count('truncate_result'),
+      inputsTruncated: decisions.filter((d) => d.inputAction === 'truncate_input').length,
       callsDropped: count('drop_call'),
       ms: Date.now() - started,
     },

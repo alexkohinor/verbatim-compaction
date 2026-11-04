@@ -1,0 +1,2 @@
+Steps 1–3 are done, and the output so far is clean. Reads for 4–6 are also done. Now running the last step.
+DONE
