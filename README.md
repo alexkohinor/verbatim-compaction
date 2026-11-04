@@ -7,6 +7,7 @@
 [![no network](https://img.shields.io/badge/network-never-2f6f4e?style=flat-square)](#what-and-why)
 [![Claude Code 2.1.274+](https://img.shields.io/badge/Claude%20Code-2.1.274%2B-6b4fbb?style=flat-square)](#install-in-claude-code)
 [![benchmark 86% vs 77%](https://img.shields.io/badge/benchmark-86%25%20vs%2077%25%20summary-8a6d1f?style=flat-square)](bench/RESULTS.md)
+[![write-heavy 80% vs 67%](https://img.shields.io/badge/write--heavy-80%25%20vs%2067%25%20summary-8a6d1f?style=flat-square)](bench/RESULTS-writes.md)
 
 Claude Code plugin that compacts a session by **deleting stale tool output
 instead of summarising it**. Everything kept is byte-for-byte what it was.
@@ -165,7 +166,23 @@ duplicates are rare.
 
 These are whole session logs, not single context windows, so read the figure
 as "how much accumulated tool output is redundant", not as a context-window
-saving.
+saving. (Measured with 0.1.0.)
+
+### A write-heavy project (0.2.0)
+
+The table above is from sessions that mostly read. On a project whose sessions
+write a lot, 0.1.0 barely helps: a write's record is never deleted, and before
+0.2.0 its payload went with it. 18 real compactions — each one exactly the part
+of the conversation Claude Code compacted, split at its `compact_boundary`:
+
+| | 0.1.0 | 0.2.0 |
+| --- | ---: | ---: |
+| removed overall | 25.4% | 42.0% |
+| compactions under `minReductionRatio` (built-in summary instead) | 6 of 18 | 0 of 18 |
+| range per compaction | 8.8–40.9% | 22.6–52.0% |
+
+The difference is rule 4: half of what 0.1.0 left were `Write`/`Edit` inputs
+and heredocs.
 
 ### Verified in a live session
 
@@ -215,11 +232,38 @@ and a summariser can still carry it out.
 Method, per-probe table, the three broken harnesses and the benchmark's own
 defects: [`bench/RESULTS.md`](bench/RESULTS.md).
 
+### A/B on a write-heavy session (0.2.0)
+
+`bench/live-writes.sh`: the session writes an 800-row, 35 KB file, reads a
+42 KB log and two small files, then `/compact` and 10 probes. Claude Code
+2.1.318, `sonnet`, three runs per arm:
+
+| arm | probes recalled |
+| --- | --- |
+| no compaction (control) | 30/30 · 100% |
+| **0.2.0**, sequential calls | **24/30 · 80%** |
+| **0.2.0**, four parallel calls in one response | **24/30 · 80%** |
+| built-in summary | 18–20/30 · 60–67% |
+| 0.1.0 (fell back to the summary in 3 of 3) | 16/30 · 53% |
+| rules set to destroy everything | 6/30 · 20% |
+
+80% is the ceiling of the case: the two probes the rules cannot answer ask for
+rows in the middle of the written file, which rule 4 cuts by design. Getting
+there with parallel calls took a fix in the hook (whole responses, see the
+changelog); every intermediate version is measured in
+[`bench/RESULTS-writes.md`](bench/RESULTS-writes.md).
+
 ## Limitations — read these
 
-- **The one A/B that exists is a single synthetic case.** 86% against 77% is
-  nine points on that case, at five times the retained context, not a general
-  property of either scheme. The 28.9% figure above is about size, not quality.
+- **The A/B results are two synthetic cases.** 86% against 77% and 80%
+  against 60–67% are points on those cases, not a general property of either
+  scheme. The 28.9% and 42% figures above are about size, not quality.
+- **Rule 4 forgets the middle of what was written.** The head and tail of a
+  long input stay; the rest is on disk and has to be read again. A session
+  that relies on remembering the middle of a file it wrote loses that.
+- When anything is rewritten, the region before the pinned tail is handed back
+  rebuilt; thinking-only entries there are dropped, and rebuilt entries carry
+  only what a message built from role, text and tool blocks can hold.
 - The `Bash` classifier is a heuristic over command names. It errs towards
   "this changed something", which costs reduction, not correctness — but a
   read-only command it does not know is simply never cleaned up.
@@ -230,8 +274,9 @@ defects: [`bench/RESULTS.md`](bench/RESULTS.md).
 - Token figures in `stats` are an estimate from character classes, not a
   tokenizer. Nothing in the logic depends on them.
 - The Claude Code hook surface is early access and `types/claude-code.d.ts`
-  here is a hand-written minimal subset; it loads and runs on 2.1.278 and will
-  need updating when that API moves.
+  here is a hand-written minimal subset; the hook also typechecks against the
+  API Claude Code 2.1.318 writes and runs live on it, and will need updating
+  when that API moves.
 
 ## Development
 
